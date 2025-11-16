@@ -90,10 +90,10 @@ show_menu() {
     echo -e "
 ${green}AWS / Lightsail Root 登录管理${plain}
 --------------------------------
-${green}1.${plain} 启用 root 登录
-${green}2.${plain} 复制 ubuntu SSH key 到 root
-${green}3.${plain} 设置 root 密码
-${green}4.${plain} 一键全部执行（推荐）
+${green}1.${plain} 一键全部执行（推荐）
+${green}2.${plain} 启用 root 登录
+${green}3.${plain} 复制 ubuntu SSH key 到 root
+${green}4.${plain} 设置 root 密码
 ${green}5.${plain} 退出脚本
 "
     read -rp "请输入选项 [1-5]: " num
@@ -101,19 +101,19 @@ ${green}5.${plain} 退出脚本
     case $num in
         1)
             enable_root_login
-            ;;
-        2)
-            copy_ssh_key
-            ;;
-        3)
-            set_root_pass
-            ;;
-        4)
-            enable_root_login
             copy_ssh_key
             set_root_pass
             restart_ssh
             echo -e "${green}✔ 全部完成！现在可以使用 root 登录了。${plain}"
+            ;;
+        2)
+            enable_root_login
+            ;;
+        3)
+            copy_ssh_key
+            ;;
+        4)
+            set_root_pass
             ;;
         5)
             exit 0
