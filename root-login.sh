@@ -45,7 +45,7 @@ enable_root_login() {
 }
 
 # -----------------------
-# 复制 ubuntu key 到 root（Lightsail 必须）
+# 复制 ubuntu key 到 root
 # -----------------------
 copy_ssh_key() {
     echo -e "${yellow}→ 复制 SSH 公钥 ...${plain}"
@@ -75,10 +75,10 @@ set_root_pass() {
 restart_ssh() {
     echo -e "${yellow}→ 重启 SSH 服务 ...${plain}"
 
-    systemctl daemon-reload || true
-    systemctl restart sshd 2>/dev/null || true
-    systemctl restart ssh 2>/dev/null || true
-    systemctl restart ssh.socket 2>/dev/null || true
+    systemctl daemon-reload 2>/dev/null
+    systemctl restart sshd 2>/dev/null
+    systemctl restart ssh 2>/dev/null
+    systemctl restart ssh.socket 2>/dev/null
 
     echo -e "${green}✔ SSH 服务已重启${plain}"
 }
@@ -94,24 +94,42 @@ ${green}1.${plain} 启用 root 登录
 ${green}2.${plain} 复制 ubuntu SSH key 到 root
 ${green}3.${plain} 设置 root 密码
 ${green}4.${plain} 一键全部执行（推荐）
-${green}5.${plain} 退出
+${green}5.${plain} 退出脚本
 "
     read -rp "请输入选项 [1-5]: " num
 
     case $num in
-        1) enable_root_login ;;
-        2) copy_ssh_key ;;
-        3) set_root_pass ;;
+        1)
+            enable_root_login
+            ;;
+        2)
+            copy_ssh_key
+            ;;
+        3)
+            set_root_pass
+            ;;
         4)
             enable_root_login
             copy_ssh_key
             set_root_pass
             restart_ssh
-            echo -e "${green}全部完成！你现在可以用 root 登录了。${plain}"
+            echo -e "${green}✔ 全部完成！现在可以使用 root 登录了。${plain}"
             ;;
-        5) exit ;;
-        *) echo -e "${red}请输入正确数字${plain}" ;;
+        5)
+            exit 0
+            ;;
+        *)
+            echo -e "${red}请输入正确数字${plain}"
+            ;;
     esac
+
+    echo
+    read -rp "按回车返回主菜单..." tmp
 }
 
-show_menu
+# -----------------------
+# 循环菜单
+# -----------------------
+while true; do
+    show_menu
+done
