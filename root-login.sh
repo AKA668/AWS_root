@@ -10,22 +10,6 @@ plain='\033[0m'
 echo -e "${green}=== AWS Root 登录管理脚本 ===${plain}"
 
 # -----------------------
-# 检测系统版本
-# -----------------------
-if [[ -f /etc/redhat-release ]]; then
-    release="centos"
-elif grep -Eqi "ubuntu" /etc/issue; then
-    release="ubuntu"
-elif grep -Eqi "debian" /etc/issue; then
-    release="debian"
-elif grep -Eqi "alpine" /etc/issue; then
-    release="alpine"
-else
-    echo -e "${red}不支持的系统类型！${plain}"
-    exit 1
-fi
-
-# -----------------------
 # 开启 root 登录
 # -----------------------
 enable_root_login() {
@@ -57,7 +41,7 @@ copy_ssh_key() {
         chmod 700 /root/.ssh
         echo -e "${green}✔ 已复制 ubuntu 公钥到 root${plain}"
     else
-        echo -e "${red}× 没有找到 /home/ubuntu/.ssh/authorized_keys${plain}"
+        echo -e "${red}× 未找到 /home/ubuntu/.ssh/authorized_keys${plain}"
     fi
 }
 
@@ -74,13 +58,22 @@ set_root_pass() {
 # -----------------------
 restart_ssh() {
     echo -e "${yellow}→ 重启 SSH 服务 ...${plain}"
-
     systemctl daemon-reload 2>/dev/null
     systemctl restart sshd 2>/dev/null
     systemctl restart ssh 2>/dev/null
     systemctl restart ssh.socket 2>/dev/null
-
     echo -e "${green}✔ SSH 服务已重启${plain}"
+}
+
+# -----------------------
+# 一键全部执行（推荐）
+# -----------------------
+run_all() {
+    enable_root_login
+    copy_ssh_key
+    set_root_pass
+    restart_ssh
+    echo -e "${green}✔ 全部完成！现在可以使用 root 登录了。${plain}"
 }
 
 # -----------------------
@@ -94,42 +87,25 @@ ${green}1.${plain} 一键全部执行（推荐）
 ${green}2.${plain} 启用 root 登录
 ${green}3.${plain} 复制 ubuntu SSH key 到 root
 ${green}4.${plain} 设置 root 密码
-${green}5.${plain} 退出脚本
+${green}5.${plain} 重启 SSH 服务
+${green}6.${plain} 退出脚本
 "
-    read -rp "请输入选项 [1-5]: " num
+    read -rp "请输入选项 [1-6]: " num
 
     case $num in
-        1)
-            enable_root_login
-            copy_ssh_key
-            set_root_pass
-            restart_ssh
-            echo -e "${green}✔ 全部完成！现在可以使用 root 登录了。${plain}"
-            ;;
-        2)
-            enable_root_login
-            ;;
-        3)
-            copy_ssh_key
-            ;;
-        4)
-            set_root_pass
-            ;;
-        5)
-            exit 0
-            ;;
-        *)
-            echo -e "${red}请输入正确数字${plain}"
-            ;;
+        1) run_all ;;
+        2) enable_root_login ;;
+        3) copy_ssh_key ;;
+        4) set_root_pass ;;
+        5) restart_ssh ;;
+        6) exit 0 ;;
+        *) echo -e "${red}请输入正确数字${plain}" ;;
     esac
 
     echo
     read -rp "按回车返回主菜单..." tmp
 }
 
-# -----------------------
-# 循环菜单
-# -----------------------
 while true; do
     show_menu
 done
